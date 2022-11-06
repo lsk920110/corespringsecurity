@@ -14,38 +14,37 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class AjaxLoginPrcessingFilter extends AbstractAuthenticationProcessingFilter {
+public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingFilter {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
 
 
-    public AjaxLoginPrcessingFilter() {
+    public AjaxLoginProcessingFilter() {
         super(new AntPathRequestMatcher("/api/login"));
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
-        
         if(!isAjax(request)){
             throw new IllegalStateException("Authentication is not supported");
         }
-
         AccountDTO accountDTO = objectMapper.readValue(request.getReader(), AccountDTO.class);
         if(StringUtils.isEmpty(accountDTO.getUsername()) || StringUtils.isEmpty(accountDTO.getPassword())){
             throw new IllegalArgumentException("Username or Password is empty");
         }
 
         AjaxAuthenticationToken ajaxAuthenticationToken = new AjaxAuthenticationToken(accountDTO.getUsername(),accountDTO.getPassword());
-
         return getAuthenticationManager().authenticate(ajaxAuthenticationToken);
     }
 
     private boolean isAjax(HttpServletRequest request) {
 
         if("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))){
+            System.out.println("ajax다!!");
             return true;
         }
+        System.out.println("ajax 아니다...");
         return false;
 
     }

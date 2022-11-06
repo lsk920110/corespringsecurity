@@ -1,31 +1,30 @@
 package io.security.corespringsecurity.security.configs;
 
 
-import io.security.corespringsecurity.security.filter.AjaxLoginPrcessingFilter;
 import io.security.corespringsecurity.security.handler.CustomAccessDeniedHandler;
+import io.security.corespringsecurity.security.handler.CustomAuthenticationFailuerHandler;
+import io.security.corespringsecurity.security.handler.CustomAuthenticationSuccessHandler;
 import io.security.corespringsecurity.security.provider.FormAuthenticationProvider;
-import io.security.corespringsecurity.security.token.AjaxAuthenticationToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,15 +32,22 @@ import javax.servlet.http.HttpServletRequest;
 @Configuration
 @EnableWebSecurity
 @Slf4j
+@Order(1)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private AuthenticationSuccessHandler customAuthenticationSuccessHandler;
     @Autowired
     private AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> authenticationDetailsSource;
 
     @Autowired
-    private AuthenticationFailureHandler customAuthenticationFailureHandler;
+    private
+//    CustomAuthenticationSuccessHandler
+        AuthenticationSuccessHandler
+            customAuthenticationSuccessHandler;
+    @Autowired
+    private
+//    CustomAuthenticationFailuerHandler
+    AuthenticationFailureHandler
+            customAuthenticationFailureHandler;
 
 
 //    @Autowired
@@ -99,10 +105,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler())
-                .and()
-                .addFilterBefore(ajaxLoginPrcessingFilter() , UsernamePasswordAuthenticationFilter.class)
-        ;
-        http.csrf().disable();
+                ;
+
     }
 
     @Bean
@@ -115,11 +119,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-    @Bean
-    public AjaxLoginPrcessingFilter ajaxLoginPrcessingFilter() throws Exception{
-        AjaxLoginPrcessingFilter ajaxLoginPrcessingFilter = new AjaxLoginPrcessingFilter();
-        ajaxLoginPrcessingFilter.setAuthenticationManager(authenticationManagerBean());
-        return ajaxLoginPrcessingFilter;
-    }
+
 
 }
